@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Intravenous</id>
+    <version>##VERSION##</version>
+    <authors>Roy Jacobs</authors>
+    <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
+    <projectUrl>http://tbd</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>TBD.</description>
+    <dependencies></dependencies>
+  </metadata>
+  <files>
+    <file src="*.js" target="Content\scripts" /> 
+  </files>
+</package>

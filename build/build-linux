@@ -1,0 +1,37 @@
+#!/bin/sh
+
+OutDebugFile='output/intravenous-latest.debug.js'
+OutMinFile='output/intravenous-latest.js'
+
+# Combine the source files
+SourceFiles=`grep js < fragments/source-references.js | # Find JS references 
+             sed "s/[ \',]//g" |                        # Strip off JSON fluff (whitespace, commas, quotes)
+             sed -e 's/.*/..\/&/' |                     # Fix the paths by prefixing with ../
+             tr '\n' ' '`                               # Combine into single line
+cat fragments/amd-pre.js            > $OutDebugFile.temp
+cat $SourceFiles                    >> $OutDebugFile.temp
+cat fragments/amd-post.js           >> $OutDebugFile.temp
+
+# Now call Google Closure Compiler to produce a minified version
+curl -d output_info=compiled_code -d output_format=text -d compilation_level=ADVANCED_OPTIMIZATIONS --data-urlencode "js_code=/**@const*/var DEBUG=false;" --data-urlencode js_code@$OutDebugFile.temp "http://closure-compiler.appspot.com/compile" > $OutMinFile.temp
+
+# Finalise each file by prefixing with version header and surrounding in function closure
+cp fragments/version-header.js $OutDebugFile
+echo "(function(window,document,navigator,undefined){" >> $OutDebugFile
+echo "var DEBUG=true;"                                 >> $OutDebugFile
+cat $OutDebugFile.temp                                 >> $OutDebugFile
+echo "})(window,document,navigator);"                  >> $OutDebugFile
+rm $OutDebugFile.temp
+
+cp fragments/version-header.js $OutMinFile
+echo "(function(window,document,navigator,undefined){" >> $OutMinFile
+cat $OutMinFile.temp                                   >> $OutMinFile
+echo "})(window,document,navigator);"                  >> $OutMinFile
+rm $OutMinFile.temp
+
+# Inject the version number string
+Version=`cat fragments/version.txt`
+sed -i~ -e "s/##VERSION##/$Version/g" $OutDebugFile $OutMinFile
+
+# Delete the odd files left behind on Mac
+rm -f output/*.js~
