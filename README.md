@@ -120,3 +120,9 @@ This example will alert `hello!`.
 
 ### Can I also create instances of services I haven't yet registered?
 No, not yet.
+
+### Where did you get inspiration from?
+The `$inject` syntax was inspired by [AngularJS](http://angularjs.org/). The nested container was a good idea pilfered from [StructureMap](http://www.structuremap.net).
+
+### What's the license?
+[MIT](http://www.opensource.org/licenses/mit-license.php).
