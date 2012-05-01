@@ -2,8 +2,12 @@ describe("A nested container", function() {
     beforeEach(function() {
         var _this = this;
 
+        this.disposalCount = {};
         this.baseContainer = intravenous.create({
-            onDispose: function() {}
+            onDispose: function(obj, key) {
+                if (!_this.disposalCount[key]) _this.disposalCount[key] = 0;
+                _this.disposalCount[key]++;
+            }
         });
         this.baseContainer.register("a", "a");
     });
@@ -67,6 +71,60 @@ describe("A nested container", function() {
 
         it("does not take the base container options", function() {
             expect(this.container.options).not.toEqual(this.baseContainer.options);
+        });
+    });
+
+    describe("when disposed through the base", function() {
+        beforeEach(function() {
+            this.container = this.baseContainer.create();
+            this.baseRetrievedA = this.baseContainer.get("a");
+            this.retrievedA = this.container.get("a");
+            this.baseContainer.dispose();
+        });
+
+        it("should dispose the nested container as well", function() {
+            expect(this.disposalCount.a).toBe(2);
+        });
+    });
+
+    describe("when disposed through the nested container", function() {
+        beforeEach(function() {
+            this.container = this.baseContainer.create();
+            this.baseRetrievedA = this.baseContainer.get("a");
+            this.retrievedA = this.container.get("a");
+            this.container.dispose();
+        });
+
+        it("should only dispose items created through the nested container", function() {
+            expect(this.disposalCount.a).toBe(1);
+        });
+    });
+
+    describe("with a singleton registration", function() {
+        beforeEach(function() {
+            this.container = this.baseContainer.create();
+            this.container.register("b", "b", "singleton");
+            this.container.get("b");
+        });
+
+        describe("is disposed", function() {
+            beforeEach(function() {
+               this.container.dispose();
+            });
+
+            it("does not dispose singletons from a base container", function() {
+                expect(this.disposalCount.b).toBe(1);
+            });
+        });
+
+        describe("when disposing the base container", function() {
+            beforeEach(function() {
+                this.baseContainer.dispose();
+            });
+
+            it("does dispose singletons in all containers", function() {
+                expect(this.disposalCount.b).toBe(1);
+            });
         });
     });
 });

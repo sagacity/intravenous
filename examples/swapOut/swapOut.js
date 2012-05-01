@@ -1,7 +1,7 @@
 var container;
 
 var createContainer = function() {
-    container = new intravenous.create();
+    container = intravenous.create();
 };
 
 var registerWriterClasses = function() {

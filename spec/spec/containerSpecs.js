@@ -49,7 +49,7 @@ describe("A container", function () {
 		});
 
         it("should have no instances", function() {
-            expect(this.container.instances.length).toBe(0);
+            expect(this.container.getCachedObjects().length).toBe(0);
         });
 
         describe("registers an instance in the container", function() {
@@ -58,7 +58,7 @@ describe("A container", function () {
             });
 
             it("should have an instance", function() {
-                expect(this.container.instances.length).toBe(1);
+                expect(this.container.getCachedObjects().length).toBe(1);
             });
         });
 		
@@ -80,61 +80,8 @@ describe("A container", function () {
 			it("should be equal to the original", function() {
 				expect(this.retrievedB.a).toBe(this.a);
 			});
-
-            /* TODO: Need proper lifecycle support for this
-            describe("that is re-registered with changed dependencies", function() {
-                beforeEach(function() {
-                    this.container.register("a2", "a2");
-                    this.b.$inject = ["a2"];
-                    this.container.register("b", this.b);
-                    this.retrievedB = this.container.get("b");
-                });
-
-                it("should be equal to the new dependency", function() {
-                    expect(this.retrievedB.a).toBe("a2");
-                });
-            });
-            */
         });
-		
-		describe("that is retrieved through injection in two similar classes", function() {
-			beforeEach(function() {
-				this.retrievedB = this.container.get("b");
-				this.retrievedB2 = this.container.get("b");
-			});
-			
-			it("should be equal to the original", function() {
-				expect(this.retrievedB.a).toBe(this.retrievedB2.a);
-			});
-		});
-		
-		describe("that is retrieved through injection in two different classes", function() {
-			beforeEach(function() {
-				this.retrievedB = this.container.get("b");
-				this.retrievedC = this.container.get("c");
-			});
-			
-			it("should be equal to the original", function() {
-				expect(this.retrievedB.a).toBe(this.retrievedC.a);
-			});
-			
-			it("should have a refCount of 2", function() {
-				expect(this.a.$registration.refCount).toBe(2);
-			});
 
-			describe("and whose container is then disposed", function() {
-				beforeEach(function() {
-					this.container.dispose();
-				});
-				
-				it("should be disposed", function() {
-					expect(this.disposalCount.a).toBe(1);
-					expect(this.disposalCount.b).toBe(1);
-					expect(this.disposalCount.c).toBe(1);
-				});
-			});
-		});
-		
 		describe("that is unused in a disposed container", function() {
 			beforeEach(function() {
 				this.container.dispose();
@@ -172,8 +119,8 @@ describe("A container", function () {
 				this.retrievedB2 = this.container.get("b");
 			});
 			
-			it("should be equal to the original", function() {
-				expect(this.retrievedB.a).toBe(this.retrievedB2.a);
+			it("should not be equal to the original", function() {
+				expect(this.retrievedB.a).not.toBe(this.retrievedB2.a);
 			});
 		});
 		
@@ -183,8 +130,8 @@ describe("A container", function () {
 				this.retrievedC = this.container.get("c");
 			});
 			
-			it("should be equal to the original", function() {
-				expect(this.retrievedB.a).toBe(this.retrievedC.a);
+			it("should not be equal to the original", function() {
+				expect(this.retrievedB.a).not.toBe(this.retrievedC.a);
 			});
 			
 			describe("and whose container is then disposed", function() {
