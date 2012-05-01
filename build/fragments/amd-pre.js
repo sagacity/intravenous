@@ -9,7 +9,6 @@
         define(['exports'], factory);
     } else {
         // [3] No module loader (plain <script> tag) - put directly in global namespace
-		window['on'] = window['on'] || {};
-        factory(window['on']['intravenous'] = {});
+        factory(window['intravenous'] = {});
     }
-}(function(exports){
+}(function(intravenous){

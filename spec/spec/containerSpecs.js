@@ -3,7 +3,7 @@ describe("A container", function () {
 		var _this = this;
 		
 		this.disposalCount = {};
-		this.container = $.create({
+		this.container = intravenous.create({
 			onDispose: function(obj, key) {
 				if (!_this.disposalCount[key]) _this.disposalCount[key] = 0;
 				_this.disposalCount[key]++;
@@ -80,7 +80,22 @@ describe("A container", function () {
 			it("should be equal to the original", function() {
 				expect(this.retrievedB.a).toBe(this.a);
 			});
-		});
+
+            /* TODO: Need proper lifecycle support for this
+            describe("that is re-registered with changed dependencies", function() {
+                beforeEach(function() {
+                    this.container.register("a2", "a2");
+                    this.b.$inject = ["a2"];
+                    this.container.register("b", this.b);
+                    this.retrievedB = this.container.get("b");
+                });
+
+                it("should be equal to the new dependency", function() {
+                    expect(this.retrievedB.a).toBe("a2");
+                });
+            });
+            */
+        });
 		
 		describe("that is retrieved through injection in two similar classes", function() {
 			beforeEach(function() {

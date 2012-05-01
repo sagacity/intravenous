@@ -1,1 +1,1 @@
-var $ = typeof exports !== 'undefined' ? exports : {};
+intravenous = typeof intravenous !== 'undefined' ? intravenous : {};

@@ -1,2 +1,2 @@
-$.version = "##VERSION##";
-exportSymbol('version', $.version);
+intravenous.version = "##VERSION##";
+exportSymbol('version', intravenous.version);

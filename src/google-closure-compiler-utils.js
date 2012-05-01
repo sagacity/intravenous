@@ -1,7 +1,7 @@
 // Google Closure Compiler helpers (used only to make the minified file smaller)
 var exportSymbol = function(path, object) {
 	var tokens = path.split(".");
-	var target = $;
+	var target = intravenous;
 
 	for (var i = 0; i < tokens.length - 1; i++)
 		target = target[tokens[i]];

@@ -2,7 +2,7 @@ describe("A nested container", function() {
     beforeEach(function() {
         var _this = this;
 
-        this.baseContainer = $.create({
+        this.baseContainer = intravenous.create({
             onDispose: function() {}
         });
         this.baseContainer.register("a", "a");

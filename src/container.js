@@ -75,6 +75,7 @@
 
 		var instance;
 
+        // Re-use any instance that is already available for this dependency
 		for (var t=0,len = container.instances.length;t<len;t++) {
 			var i = container.instances[t];
 			if (i.registration.key === key) {
@@ -152,10 +153,10 @@
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	$.create = function(options) {
+	intravenous.create = function(options) {
 		return new container(options);
 	};
 	
-	exportSymbol("create", $.create);
+	exportSymbol("create", intravenous.create);
 }());
 

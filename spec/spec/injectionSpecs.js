@@ -1,6 +1,6 @@
 describe("Injection", function () {
     beforeEach(function () {
-		this.container = $.create();
+		this.container = intravenous.create();
 		
 		var names = ["a", "a2", "a3"];
 		for (var t=0;t<names.length;t++) {

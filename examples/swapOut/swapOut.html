@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SwapOut</title>
+    <script type="text/javascript" src="../../build/intravenous-raw.js"></script>
+    <script type="text/javascript" src="swapOut.js"></script>
+</head>
+<body>
+    This demo illustrates how you can use <b>intravenous</b> to swap out dependencies for your classes.<br>
+    It shows a simple logger class that has a dependency on a 'writer'. Depending on how you configure the container, the logger will use a 'consoleWriter' that logs to the console, or an 'alertWriter' that uses an alert popup.<br><br>
+    <button onclick="consoleDemo()">Create logger using 'consoleWriter' and log 'Hello!' (check your console)</button><br>
+    <button onclick="alertDemo()">Create logger using 'alertWriter' and log 'Hello!'</button>
+</body>
+</html>
