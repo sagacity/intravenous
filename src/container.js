@@ -2,10 +2,9 @@
 	"use strict";
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	var registration = function(key, value, lifecycle) {
+	var registration = function(key, value) {
 		this.key = key;
 		this.value = value;
-		this.lifecycle = lifecycle;
 		this.refCount = 0;
 	};
 	registration.prototype = {
@@ -19,9 +18,10 @@
 	};
 	
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	var container = function(options) {
+	var container = function(options, parent) {
 		this.registry = {};
 		this.instances = [];
+        this.parent = parent;
 
 		options = options || {};
 		this.options = options;
@@ -36,17 +36,35 @@
 			instance: instance
 		});
 	};
+
+    var getKeyOption = function(key) {
+        if (key) {
+            switch (key.substr(-1)) {
+                case "?":
+                    return "nullable";
+            }
+        }
+
+        return null;
+    };
 	
 	var get = function(container, key, extraInjections, visitedKeys, visitedKeysArray) {
-		var isOptional = (key && key.substr(-1) === "!");
-		if (isOptional) key = key.slice(0, -1);
-	
-		var reg = container.registry[key];
+        var keyOption = getKeyOption(key);
+		if (keyOption) key = key.slice(0, -1);
+
+        // Try to find the dependency registration in the current container.
+        // If not found, recursively try the parent container.
+        var reg;
+        var currentContainer = container;
+        while (currentContainer && !reg) {
+            reg = currentContainer.registry[key];
+            if (!reg) currentContainer = currentContainer.parent;
+        }
 		if (!reg) {
-			if (isOptional) return null;
+			if (keyOption === "nullable") return null;
 			else throw new Error("Unknown dependency: " + key);
 		}
-		
+
 		visitedKeys = visitedKeys || {};
 		visitedKeysArray = visitedKeysArray || [];
 		visitedKeysArray.push(key);
@@ -54,7 +72,7 @@
 			throw new Error("Circular reference: " + visitedKeysArray.join(" --> "));
 		}
 		visitedKeys[key] = true;
-		
+
 		var instance;
 
 		for (var t=0,len = container.instances.length;t<len;t++) {
@@ -65,7 +83,7 @@
 				return i.instance;
 			}
 		};
-		
+
 		if (reg.value instanceof Function) {
 			// The registered value is a constructor, so we need to construct the object and inject all the dependencies.
 			var injections = reg.value.$inject;
@@ -80,11 +98,11 @@
 			var temp = function() {};
 			temp.prototype = reg.value.prototype;
 			instance = new temp;
-			
+
 			for (var t=0,len = extraInjections.length;t<len;t++) {
 				resolvedInjections.push(extraInjections[t]);
 			}
-			
+
 			reg.value.apply(instance, resolvedInjections);
 		} else {
 			// The registered value is an existing instance.
@@ -96,17 +114,23 @@
 		pushInstance(container, reg, instance);
 		return instance;
 	};
-	
+
 	container.prototype = {
-		register: function(key, value, lifecycle) {
-			if (key && key.substr(-1) === "!") throw new Error("Cannot register dependency: " + key);
-			var reg = new registration(key, value, lifecycle);
+		register: function(key, value) {
+			if (getKeyOption(key)) throw new Error("Cannot register dependency: " + key);
+			var reg = new registration(key, value);
 			this.registry[key] = reg;
 		},
 		
 		get: function(key) {
 			var extraInjections = Array.prototype.slice.call(arguments).slice(1);
-			return get(this, key, extraInjections);
+
+            var container = this;
+            var value;
+			while (container && (value = get(container, key, extraInjections)) === null) {
+                container = container.parent;
+            };
+            return value;
 		},
 		
 		dispose: function() {
@@ -118,7 +142,13 @@
 				}
 			}
 			return true;
-		}
+		},
+
+        create: function(options) {
+            options = options || {};
+            options.onDispose = options.onDispose || this.options.onDispose;
+            return new container(options, this);
+        }
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////

@@ -62,7 +62,7 @@ describe("Injection", function () {
 	
 	describe("supports optional dependencies", function() {
 		beforeEach(function() {
-			this.b.$inject = ["a4!", "a3!"];
+			this.b.$inject = ["a4?", "a3?"];
 			this.retrievedB = this.container.get("b");
 		});
 		

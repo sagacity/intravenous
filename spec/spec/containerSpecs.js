@@ -23,9 +23,9 @@ describe("A container", function () {
 		expect(this.container.dispose()).toBeTruthy();
 	});
 	
-	it("does not allow to register dependencies ending with '!'", function() {
+	it("does not allow to register dependencies ending with '?'", function() {
 		var _this = this;
-		expect(function() { _this.container.register("a!", {}); }).toThrow("Cannot register dependency: a!");
+		expect(function() { _this.container.register("a?", {}); }).toThrow("Cannot register dependency: a?");
 	});
 	
 	describe("containing an object registration", function() {
@@ -47,6 +47,20 @@ describe("A container", function () {
 			this.c.$inject = ["a"];
 			this.container.register("c", this.c);
 		});
+
+        it("should have no instances", function() {
+            expect(this.container.instances.length).toBe(0);
+        });
+
+        describe("registers an instance in the container", function() {
+            beforeEach(function() {
+                this.retrievedA = this.container.get("a");
+            });
+
+            it("should have an instance", function() {
+                expect(this.container.instances.length).toBe(1);
+            });
+        });
 		
 		describe("that is retrieved through 'get'", function() {
 			beforeEach(function() {
