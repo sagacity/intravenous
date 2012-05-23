@@ -122,13 +122,10 @@
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	var nullableFacility = function(container) {
-	};
-
-	nullableFacility.prototype = {
+	var nullableFacility = {
 		suffixes: ["?"],
 
-		beforeResolve: function(key, reg) {
+		beforeResolve: function(container, key, reg) {
 			if (reg) return {
 				// We don't want to handle non-null instances
 				handled: false
@@ -143,19 +140,15 @@
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	var factoryFacility = function(container) {
-		this.container = container;
-	};
-
-	factoryFacility.prototype = {
+	var factoryFacility = {
 		suffixes: ["Factory", "!"],
 
-		resolve: function(key, reg) {
+		resolve: function(container, key, reg) {
 			var _this = this;
 			return {
 				handled: true,
 				data: function() {
-					return _this.container.get(key);
+					return container.get(key);
 				}
 			}
 		}
@@ -169,10 +162,6 @@
 			perRequest: new perRequestLifecycle(this),
 			singleton: new singletonLifecycle(this),
 			unique: new uniqueLifecycle(this)
-		};
-		this.facilities = {
-			nullable: new nullableFacility(this),
-			factory: new factoryFacility(this)
 		};
 		this.children = [];
 
@@ -218,7 +207,7 @@
 		}
 
 		if (facility && facility.beforeResolve) {
-			var result = facility.beforeResolve(key, reg);
+			var result = facility.beforeResolve(container, key, reg);
 			if (result.handled) return result.data;
 		}
 
@@ -227,7 +216,7 @@
 		}
 
 		if (facility && facility.resolve) {
-			var result = facility.resolve(key, reg);
+			var result = facility.resolve(container, key, reg);
 			if (result.handled) return result.data;
 		}
 
@@ -270,6 +259,11 @@
 	};
 
 	container.prototype = {
+		facilities: {
+			nullable: nullableFacility,
+			factory: factoryFacility
+		},
+
 		register: function(key, value, lifecycle) {
 			// Conflicts with facility names?
 			if (getFacility(this, key).data) throw new Error("Cannot register dependency: " + key);
