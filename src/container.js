@@ -122,6 +122,46 @@
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	var nullableFacility = function(container) {
+	};
+
+	nullableFacility.prototype = {
+		suffixes: ["?"],
+
+		beforeResolve: function(key, reg) {
+			if (reg) return {
+				// We don't want to handle non-null instances
+				handled: false
+			}
+			else {
+				return {
+					handled: true,
+					data: null
+				}
+			}
+		}
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	var factoryFacility = function(container) {
+		this.container = container;
+	};
+
+	factoryFacility.prototype = {
+		suffixes: ["Factory", "!"],
+
+		resolve: function(key, reg) {
+			var _this = this;
+			return {
+				handled: true,
+				data: function() {
+					return _this.container.get(key);
+				}
+			}
+		}
+	};
+
+    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////
 	var container = function(options, parent) {
 		this.registry = {};
 		this.parent = parent;
@@ -129,6 +169,10 @@
 			perRequest: new perRequestLifecycle(this),
 			singleton: new singletonLifecycle(this),
 			unique: new uniqueLifecycle(this)
+		};
+		this.facilities = {
+			nullable: new nullableFacility(this),
+			factory: new factoryFacility(this)
 		};
 		this.children = [];
 
@@ -138,32 +182,53 @@
 		this.register("container", this);
 	};
 
-	var getKeyOption = function(key) {
-		if (key) {
-			switch (key.substr(-1)) {
-				case "?":
-					return "nullable";
+	var getFacility = function(container, key) {
+		for (var facilityName in container.facilities) {
+			var facility = container.facilities[facilityName];
+			for (var t=0,len = facility.suffixes.length;t<len;t++) {
+				var suffix = facility.suffixes[t];
+				if (key.indexOf(suffix, key.length - suffix.length) !== -1) {
+					return {
+						data: facility,
+						key: key.slice(0, key.length - suffix.length)
+					};
+				}
 			}
 		}
 
-		return null;
+		return {
+			data: null,
+			key: key
+		};
 	};
 
 	var get = function(container, key, extraInjections) {
-		var keyOption = getKeyOption(key);
-		if (keyOption) key = key.slice(0, -1);
+		var facility = getFacility(container, key);
+		key = facility.key;
+		facility = facility.data;
 
 		// Try to find the dependency registration in the current container.
 		// If not found, recursively try the parent container.
 		var reg;
 		var currentContainer = container;
-		while (currentContainer && !reg) {
+		while (currentContainer) {
 			reg = currentContainer.registry[key];
 			if (!reg) currentContainer = currentContainer.parent;
+			else break;
 		}
-		if (!reg) {
-			if (keyOption === "nullable") return null;
-			else throw new Error("Unknown dependency: " + key);
+
+		if (facility && facility.beforeResolve) {
+			var result = facility.beforeResolve(key, reg);
+			if (result.handled) return result.data;
+		}
+
+		if (!currentContainer) {
+			throw new Error("Unknown dependency: " + key);
+		}
+
+		if (facility && facility.resolve) {
+			var result = facility.resolve(key, reg);
+			if (result.handled) return result.data;
 		}
 
 		// Ask the lifecycle if it already has an instance of this dependency
@@ -206,7 +271,9 @@
 
 	container.prototype = {
 		register: function(key, value, lifecycle) {
-			if (getKeyOption(key)) throw new Error("Cannot register dependency: " + key);
+			// Conflicts with facility names?
+			if (getFacility(this, key).data) throw new Error("Cannot register dependency: " + key);
+
 			this.registry[key] = new registration(key, this, value, lifecycle || "perRequest");
 		},
 
