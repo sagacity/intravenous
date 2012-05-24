@@ -155,7 +155,7 @@
 			return instance;
 		},
 
-		with: function(key, value, lifecycle) {
+		use: function(key, value, lifecycle) {
 			this.container.register(key, value, lifecycle);
 			return this;
 		},
@@ -177,9 +177,9 @@
 			return fi.get.apply(fi, arguments);
 		},
 
-		with: function(key, value, lifecycle) {
+		use: function(key, value, lifecycle) {
 			var fi = new factoryInstance(this.container, this.key);
-			return fi.with(key, value, lifecycle);
+			return fi.use(key, value, lifecycle);
 		},
 
 		dispose: function(obj) {

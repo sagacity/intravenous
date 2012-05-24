@@ -22,7 +22,7 @@ describe("A factory", function() {
         this.b = function(aFactory) {
 			var _this = this;
 			this.a = aFactory.get("extraParameter");
-			this.a2 = aFactory.with("dependency", "d2").get("extraParameter");
+			this.a2 = aFactory.use("dependency", "d2").get("extraParameter");
 
 			this.aDispose = function() {
 				aFactory.dispose(_this.a);
