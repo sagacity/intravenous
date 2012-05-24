@@ -140,6 +140,54 @@
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	var factoryInstance = function(container, key) {
+		this.container = container.create();
+		this.key = key;
+	};
+
+	factoryInstance.prototype = {
+		get: function() {
+			var args = Array.prototype.slice.call(arguments);
+			args.unshift(this.key);
+
+			var instance = this.container.get.apply(this.container, args);
+			instance.$containerFactoryInstance = this;
+			return instance;
+		},
+
+		with: function(key, value, lifecycle) {
+			this.container.register(key, value, lifecycle);
+			return this;
+		},
+
+		dispose: function() {
+			this.container.dispose();
+		}
+	};
+
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	var factory = function(container, key) {
+		this.container = container;
+		this.key = key;
+	};
+
+	factory.prototype = {
+		get: function() {
+			var fi = new factoryInstance(this.container, this.key);
+			return fi.get.apply(fi, arguments);
+		},
+
+		with: function(key, value, lifecycle) {
+			var fi = new factoryInstance(this.container, this.key);
+			return fi.with(key, value, lifecycle);
+		},
+
+		dispose: function(obj) {
+			obj.$containerFactoryInstance.dispose();
+			delete obj.$containerFactoryInstance;
+		}
+	};
+
 	var factoryFacility = {
 		suffixes: ["Factory", "!"],
 
@@ -147,9 +195,7 @@
 			var _this = this;
 			return {
 				handled: true,
-				data: function() {
-					return container.get(key);
-				}
+				data: new factory(container, key)
 			}
 		}
 	};
@@ -268,6 +314,13 @@
 			// Conflicts with facility names?
 			if (getFacility(this, key).data) throw new Error("Cannot register dependency: " + key);
 
+			if (!lifecycle) {
+				// update registration, if possible
+				if (this.registry[key]) {
+					this.registry[key].value = value;
+					return;
+				}
+			}
 			this.registry[key] = new registration(key, this, value, lifecycle || "perRequest");
 		},
 
