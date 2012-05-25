@@ -5,9 +5,9 @@
     <version>##VERSION##</version>
     <authors>Roy Jacobs</authors>
     <licenseUrl>http://www.opensource.org/licenses/mit-license.php</licenseUrl>
-    <projectUrl>http://tbd</projectUrl>
+    <projectUrl>http://royjacobs.github.com/intravenous</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>TBD.</description>
+    <description>A lightweight dependency injection container for Javascript.</description>
     <dependencies></dependencies>
   </metadata>
   <files>
