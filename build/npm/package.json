@@ -1,8 +1,9 @@
 {
 	"name": "intravenous",
 	"files": [
-		"intravenous-latest.js"
+		"lib/intravenous.js"
 	],
+	"main": "lib/intravenous.js",
 	"version": "##VERSION##",
 	"description": "Lightweight dependency injection for Javascript",
 	"homepage": "http://royjacobs.github.com/intravenous/",

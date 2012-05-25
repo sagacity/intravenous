@@ -5,8 +5,12 @@ set InNpmSpec=npm\package.json
 set OutNpmSpec=output\package.json
 set OutDebugFile=output\intravenous-latest.debug.js
 set OutMinFile=output\intravenous-latest.js
+set OutMinNpmFile=output\lib\intravenous.js
 set AllFiles=
 for /f "eol=] skip=1 delims=' " %%i in (fragments\source-references.js) do set Filename=%%i& call :Concatenate 
+
+if not exist output md output
+if not exist output\lib md output\lib
 
 goto :Combine
 :Concatenate 
@@ -27,16 +31,16 @@ tools\curl -d output_info=compiled_code -d output_format=text -d compilation_lev
 
 @rem Finalise each file by prefixing with version header and surrounding in function closure
 copy /y fragments\version-header.js %OutDebugFile%
-echo (function(window,document,navigator,undefined){>> %OutDebugFile%
+echo (function(window,undefined){>> %OutDebugFile%
 echo var DEBUG=true;>> %OutDebugFile%
 type %OutDebugFile%.temp                            >> %OutDebugFile%
-echo })(window,document,navigator);>> %OutDebugFile%
+echo })(typeof window !== "undefined" ? window : global);>> %OutDebugFile%
 del %OutDebugFile%.temp
 
 copy /y fragments\version-header.js %OutMinFile%
-echo (function(window,document,navigator,undefined){>> %OutMinFile%
+echo (function(window,undefined){>> %OutMinFile%
 type %OutMinFile%.temp                              >> %OutMinFile%
-echo })(window,document,navigator);>> %OutMinFile%
+echo })(typeof window !== "undefined" ? window : global);>> %OutMinFile%
 del %OutMinFile%.temp
 
 @rem Inject the version number string
@@ -52,3 +56,4 @@ nuget pack %OutNuSpec% -OutputDirectory output
 @rem NPM stuff
 copy /y %InNpmSpec% %OutNpmSpec%
 cscript tools\searchReplace.js "##VERSION##" %VERSION% %OutNpmSpec%
+copy /y %OutMinFile% %OutMinNpmFile%

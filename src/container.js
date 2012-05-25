@@ -143,6 +143,10 @@
 	var factoryInstance = function(container, key) {
 		this.container = container.create();
 		this.key = key;
+		
+		exportProperty(this, "dispose", this.dispose);
+		exportProperty(this, "get", this.get);
+		exportProperty(this, "use", this.use);
 	};
 
 	factoryInstance.prototype = {
@@ -169,6 +173,10 @@
 	var factory = function(container, key) {
 		this.container = container;
 		this.key = key;
+		
+		exportProperty(this, "dispose", this.dispose);
+		exportProperty(this, "get", this.get);
+		exportProperty(this, "use", this.use);
 	};
 
 	factory.prototype = {
@@ -205,9 +213,9 @@
 		this.registry = {};
 		this.parent = parent;
 		this.lifecycles = {
-			perRequest: new perRequestLifecycle(this),
-			singleton: new singletonLifecycle(this),
-			unique: new uniqueLifecycle(this)
+			"perRequest": new perRequestLifecycle(this),
+			"singleton": new singletonLifecycle(this),
+			"unique": new uniqueLifecycle(this)
 		};
 		this.children = [];
 
@@ -215,6 +223,10 @@
 		this.options = options;
 
 		this.register("container", this);
+
+		exportProperty(this, "dispose", this.dispose);
+		exportProperty(this, "get", this.get);
+		exportProperty(this, "register", this.register);
 	};
 
 	var getFacility = function(container, key) {
@@ -277,7 +289,7 @@
 		// Otherwise, we simply return the registered value.
 		if (reg.value instanceof Function) {
 			// The registered value is a constructor, so we need to construct the object and inject all the dependencies.
-			var injections = reg.value.$inject;
+			var injections = reg.value["$inject"];
 			var resolvedInjections = [];
 			if (injections instanceof Array) {
 				for (var t=0,len = injections.length;t<len;t++) {
@@ -350,8 +362,8 @@
 			var cache = this.getCachedObjects();
 			while (item = cache.pop()) {
 				if (this.lifecycles[item.registration.lifecycle].release(item)) {
-					if (this.options.onDispose) {
-						this.options.onDispose(item.instance, item.registration.key);
+					if (this.options["onDispose"]) {
+						this.options["onDispose"](item.instance, item.registration.key);
 					}
 				}
 			}
@@ -360,7 +372,7 @@
 
 		create: function(options) {
 			options = options || {};
-			options.onDispose = options.onDispose || this.options.onDispose;
+			options["onDispose"] = options["onDispose"] || this.options["onDispose"];
 			var child = new container(options, this);
 			this.children.push(child);
 			return child;

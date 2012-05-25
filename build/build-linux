@@ -1,9 +1,15 @@
 #!/bin/sh
 
+# Create folders
+mkdir -p output
+mkdir -p output/lib
+
+#
 OutDebugFile='output/intravenous-latest.debug.js'
 OutMinFile='output/intravenous-latest.js'
 InNpmSpec='npm/package.json'
 OutNpmSpec='output/package.json'
+OutNpmMinFile='output/lib/intravenous.js'
 
 # Combine the source files
 SourceFiles=`grep js < fragments/source-references.js | # Find JS references 
@@ -19,16 +25,16 @@ curl -d output_info=compiled_code -d output_format=text -d compilation_level=ADV
 
 # Finalise each file by prefixing with version header and surrounding in function closure
 cp fragments/version-header.js $OutDebugFile
-echo "(function(window,document,navigator,undefined){" >> $OutDebugFile
+echo "(function(window,undefined){" >> $OutDebugFile
 echo "var DEBUG=true;"                                 >> $OutDebugFile
 cat $OutDebugFile.temp                                 >> $OutDebugFile
-echo "})(window,document,navigator);"                  >> $OutDebugFile
+echo "})(typeof window !== \"undefined\" ? window : global);"                  >> $OutDebugFile
 rm $OutDebugFile.temp
 
 cp fragments/version-header.js $OutMinFile
-echo "(function(window,document,navigator,undefined){" >> $OutMinFile
+echo "(function(window,undefined){" >> $OutMinFile
 cat $OutMinFile.temp                                   >> $OutMinFile
-echo "})(window,document,navigator);"                  >> $OutMinFile
+echo "})(typeof window !== \"undefined\" ? window : global);"                  >> $OutMinFile
 rm $OutMinFile.temp
 
 # Inject the version number string
@@ -38,6 +44,7 @@ sed -i~ -e "s/##VERSION##/$Version/g" $OutDebugFile $OutMinFile
 # Create NPM
 cp $InNpmSpec $OutNpmSpec
 sed -i~ -e "s/##VERSION##/$Version/g" $OutNpmSpec
+cp $OutMinFile $OutNpmMinFile
 
 # Delete the odd files left behind on Mac
 rm -f output/*.js~
