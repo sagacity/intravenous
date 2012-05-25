@@ -1,6 +1,8 @@
 @echo off 
-set InPackageSpec=nuget\Package.nuspec
-set OutPackageSpec=output\Package.nuspec
+set InNuSpec=nuget\Package.nuspec
+set OutNuSpec=output\Package.nuspec
+set InNpmSpec=npm\package.json
+set OutNpmSpec=output\package.json
 set OutDebugFile=output\intravenous-latest.debug.js
 set OutMinFile=output\intravenous-latest.js
 set AllFiles=
@@ -43,6 +45,10 @@ cscript tools\searchReplace.js "##VERSION##" %VERSION% %OutDebugFile% %OutMinFil
 cscript tools\searchReplace.js "\r\n" "\n" %OutDebugFile%  %OutMinFile%
 
 @rem Nuget stuff
-copy /y %InPackageSpec% %OutPackageSpec%
-cscript tools\searchReplace.js "##VERSION##" %VERSION% %OutPackageSpec%
-nuget pack %OutPackageSpec% -OutputDirectory output
+copy /y %InNuSpec% %OutNuSpec%
+cscript tools\searchReplace.js "##VERSION##" %VERSION% %OutNuSpec%
+nuget pack %OutNuSpec% -OutputDirectory output
+
+@rem NPM stuff
+copy /y %InNpmSpec% %OutNpmSpec%
+cscript tools\searchReplace.js "##VERSION##" %VERSION% %OutNpmSpec%

@@ -1,0 +1,22 @@
+{
+	"name": "intravenous",
+	"files": [
+		"intravenous-latest.js"
+	],
+	"version": "##VERSION##",
+	"description": "Lightweight dependency injection for Javascript",
+	"homepage": "http://royjacobs.github.com/intravenous/",
+	"keywords": [
+		"di",
+		"ioc",
+		"injection"
+	],
+	"author": "Roy Jacobs <hello@royjacobs.org> (http://www.royjacobs.org)",
+	"license": "MIT",
+	"repositories": [
+		{
+			"type": "git",
+			"url": "https://github.com/RoyJacobs/intravenous" 
+		} 
+	]
+}
