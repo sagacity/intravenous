@@ -1,4 +1,4 @@
-// Intravenous JavaScript library v0.1.0-beta
+// Intravenous JavaScript library v0.1.1-beta
 // (c) Roy Jacobs
 // License: MIT (http://www.opensource.org/licenses/mit-license.php)
 
@@ -30,7 +30,7 @@ var exportSymbol = function(path, object) {
 var exportProperty = function(owner, publicName, object) {
   owner[publicName] = object;
 };
-intravenous.version = "0.1.0-beta";
+intravenous.version = "0.1.1-beta";
 exportSymbol('version', intravenous.version);
 (function() {
 	"use strict";
@@ -100,9 +100,10 @@ exportSymbol('version', intravenous.version);
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	var singletonLifecycle = function(container) {
+	var singletonLifecycle = function(container, parentLifecycle) {
 		this.container = container;
 		this.cache = [];
+		this.parent = parentLifecycle;
 	};
 
 	singletonLifecycle.prototype = {
@@ -116,8 +117,10 @@ exportSymbol('version', intravenous.version);
 					return i.instance;
 				}
 			}
-
-			return null;
+			
+			// If the singleton wasn't found, maybe it is available in the parent
+			if (this.parent) return this.parent.get(key);
+			else return null;
 		},
 
 		set: function(cacheItem) {
@@ -248,7 +251,7 @@ exportSymbol('version', intravenous.version);
 		this.parent = parent;
 		this.lifecycles = {
 			"perRequest": new perRequestLifecycle(this),
-			"singleton": new singletonLifecycle(this),
+			"singleton": new singletonLifecycle(this, parent ? parent.lifecycles["singleton"] : null),
 			"unique": new uniqueLifecycle(this)
 		};
 		this.children = [];
