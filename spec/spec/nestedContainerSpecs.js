@@ -103,17 +103,55 @@ describe("A nested container", function() {
     describe("with a singleton registration", function() {
         beforeEach(function() {
             this.container = this.baseContainer.create();
-            this.container.register("b", "b", "singleton");
-            this.container.get("b");
+			
+			var _this = this;
+			this.singletons = 0;
+			this.singleton = function() {
+				_this.singletons++;
+				this.items = [];
+			};
+			
+            this.container.register("singleton", this.singleton, "singleton");
+            this.container.get("singleton");
         });
+		
+		describe("when created in the root and a nested container", function() {
+			beforeEach(function() {
+				this.rootItem = function(singleton, nestedItemFactory) {
+					this.singleton = singleton;
+					this.singleton.items.push("root");
+					this.nestedItem = nestedItemFactory.get();
+				};
+				this.rootItem.$inject = ["singleton", "nestedItemFactory"];
+				this.container.register("rootItem", this.rootItem);
+				
+				this.nestedItem = function(singleton) {
+					this.singleton = singleton;
+					this.singleton.items.push("nested");
+				};
+				this.nestedItem.$inject = ["singleton"];
+				this.container.register("nestedItem", this.nestedItem);
+			});
+			
+			it("should create only one singleton", function() {
+				expect(this.singletons).toBe(1);
+			});
+			
+			it("should return the same instance", function() {
+				var rootItem = this.container.get("rootItem");
+				var nestedItem = rootItem.nestedItem;
+				expect(rootItem.singleton.items.length).toBe(2);
+				expect(rootItem.singleton).toEqual(nestedItem.singleton);
+			});
+		});
 
-        describe("is disposed", function() {
+        describe("when disposed", function() {
             beforeEach(function() {
                this.container.dispose();
             });
 
             it("does not dispose singletons from a base container", function() {
-                expect(this.disposalCount.b).toBe(1);
+                expect(this.disposalCount.singleton).toBe(1);
             });
         });
 
@@ -123,7 +161,7 @@ describe("A nested container", function() {
             });
 
             it("does dispose singletons in all containers", function() {
-                expect(this.disposalCount.b).toBe(1);
+                expect(this.disposalCount.singleton).toBe(1);
             });
         });
     });

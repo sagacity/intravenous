@@ -66,9 +66,10 @@
 	};
 
 	///////////////////////////////////////////////////////////////////////////////////////////////////////////////
-	var singletonLifecycle = function(container) {
+	var singletonLifecycle = function(container, parentLifecycle) {
 		this.container = container;
 		this.cache = [];
+		this.parent = parentLifecycle;
 	};
 
 	singletonLifecycle.prototype = {
@@ -82,8 +83,10 @@
 					return i.instance;
 				}
 			}
-
-			return null;
+			
+			// If the singleton wasn't found, maybe it is available in the parent
+			if (this.parent) return this.parent.get(key);
+			else return null;
 		},
 
 		set: function(cacheItem) {
@@ -214,7 +217,7 @@
 		this.parent = parent;
 		this.lifecycles = {
 			"perRequest": new perRequestLifecycle(this),
-			"singleton": new singletonLifecycle(this),
+			"singleton": new singletonLifecycle(this, parent ? parent.lifecycles["singleton"] : null),
 			"unique": new uniqueLifecycle(this)
 		};
 		this.children = [];
