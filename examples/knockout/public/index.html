@@ -1,0 +1,41 @@
+<html>
+	<head>
+		<!--
+			All dependencies are loaded through RequireJS.
+			Because I don't want to include all dependencies in the example I configure RequireJS to download them from GitHub instead.
+		-->
+		<script type="text/javascript">
+			var require = {
+				paths: {
+					"ko": "http://cloud.github.com/downloads/SteveSanderson/knockout/knockout-2.1.0",
+					"domReady": "https://raw.github.com/requirejs/domReady/latest/domReady",
+					"intravenous": "https://raw.github.com/RoyJacobs/intravenous/master/build/output/intravenous-latest"
+				}
+			};
+		</script>
+		<script type="text/javascript" src="http://requirejs.org/docs/release/2.0.0/minified/require.js" data-main="scripts/app"></script>
+	</head>
+	<body>
+		<div style="float:left; width: 60%">
+			<h1>Knockout sample</h1>
+			<p>
+				This sample illustrates how Intravenous can be used to help manage the lifetime of Knockout viewmodels.
+			</p>
+			<p>
+				Items: <span data-bind="text: itemCount"></span>
+				<button data-bind="click: addItem">Add item</button>
+			</p>
+			<!-- ko foreach: items -->
+				<p>
+					Item (ID: <span data-bind="text: myComputed"></span>) <button data-bind="click: $parent.removeItem">Remove</button>
+				</p>
+			<!-- /ko -->
+		</div>
+		<div style="float:right; width: 40%; background: #eee">
+			<h3>Application log</h3>
+			<!-- ko with: log -->
+				<pre data-bind="text: contents"></pre>
+			<!-- /ko -->
+		</div>
+	</body>
+</html>
