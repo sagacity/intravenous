@@ -1,23 +1,32 @@
 {
-	"name": "intravenous",
-	"files": [
-		"lib/intravenous.js"
-	],
-	"main": "lib/intravenous.js",
-	"version": "##VERSION##",
-	"description": "Lightweight dependency injection for Javascript",
-	"homepage": "http://royjacobs.github.com/intravenous/",
-	"keywords": [
-		"di",
-		"ioc",
-		"injection"
-	],
-	"author": "Roy Jacobs <hello@royjacobs.org> (http://www.royjacobs.org)",
-	"license": "MIT",
-	"repositories": [
-		{
-			"type": "git",
-			"url": "https://github.com/RoyJacobs/intravenous" 
-		} 
-	]
+  "name": "intravenous",
+  "directories": {
+	"lib": "./lib"
+  },
+  "main": "./lib/intravenous.js",
+  "version": "##VERSION##",
+  "description": "Lightweight dependency injection for Javascript",
+  "homepage": "http://royjacobs.github.com/intravenous/",
+  "keywords": [
+    "di",
+    "ioc",
+    "injection"
+  ],
+  "author": "Roy Jacobs <hello@royjacobs.org> (http://www.royjacobs.org)",
+  "license": "MIT",
+  "repositories": [
+    {
+      "type": "git",
+      "url": "https://github.com/RoyJacobs/intravenous"
+    }
+  ],
+  "dependencies": {},
+  "devDependencies": {},
+  "engines": {
+    "node": "*"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/RoyJacobs/intravenous.git"
+  }
 }

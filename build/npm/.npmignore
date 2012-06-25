@@ -1,0 +1,6 @@
+.npmignore
+*.tgz
+intravenous-latest.debug.js
+intravenous-latest.js
+package.json
+Package.nuspec

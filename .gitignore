@@ -13,4 +13,5 @@ build/output/lib
 build/output/*.nu*
 build/output/*.json*
 build/output/*.tgz*
+build/output/.npmignore
 .idea

@@ -9,6 +9,8 @@ OutDebugFile='output/intravenous-latest.debug.js'
 OutMinFile='output/intravenous-latest.js'
 InNpmSpec='npm/package.json'
 OutNpmSpec='output/package.json'
+InNpmIgnore='npm/.npmignore'
+OutNpmIgnore='output/.npmignore'
 OutNpmMinFile='output/lib/intravenous.js'
 
 # Combine the source files
@@ -43,6 +45,7 @@ sed -i~ -e "s/##VERSION##/$Version/g" $OutDebugFile $OutMinFile
 
 # Create NPM
 cp $InNpmSpec $OutNpmSpec
+cp $InNpmIgnore $OutNpmIgnore
 sed -i~ -e "s/##VERSION##/$Version/g" $OutNpmSpec
 cp $OutMinFile $OutNpmMinFile
 

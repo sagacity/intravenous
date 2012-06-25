@@ -3,6 +3,8 @@ set InNuSpec=nuget\Package.nuspec
 set OutNuSpec=output\Package.nuspec
 set InNpmSpec=npm\package.json
 set OutNpmSpec=output\package.json
+set InNpmIgnore=npm\.npmignore
+set OutNpmIgnore=output\.npmignore
 set OutDebugFile=output\intravenous-latest.debug.js
 set OutMinFile=output\intravenous-latest.js
 set OutMinNpmFile=output\lib\intravenous.js
@@ -55,5 +57,6 @@ nuget pack %OutNuSpec% -OutputDirectory output
 
 @rem NPM stuff
 copy /y %InNpmSpec% %OutNpmSpec%
+copy /y %InNpmIgnore% %OutNpmIgnore%
 cscript tools\searchReplace.js "##VERSION##" %VERSION% %OutNpmSpec%
 copy /y %OutMinFile% %OutMinNpmFile%
