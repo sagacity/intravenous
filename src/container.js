@@ -50,12 +50,14 @@
 
 		set: function(cacheItem) {
 			this.cache.push(cacheItem);
-			this.refCounts[cacheItem.registration.key] = this.refCounts[cacheItem.registration.key]++ || 1;
 			cacheItem.tag = this.tag;
+
+			this.refCounts[cacheItem.tag] = this.refCounts[cacheItem.tag] || {};
+			this.refCounts[cacheItem.tag][cacheItem.registration.key] = this.refCounts[cacheItem.tag][cacheItem.registration.key]++ || 1;
 		},
 
 		release: function(cacheItem) {
-			return !--this.refCounts[cacheItem.registration.key];
+			return !--this.refCounts[cacheItem.tag][cacheItem.registration.key];
 		},
 
 		resolveStarted: function(key) {
@@ -287,6 +289,8 @@
 			return instance;
 		}
 
+		var returnValue;
+
 		// Lifecycle didn't have an instance, so we need to create it.
 		// If the registered value is a function we use it as a constructor.
 		// Otherwise, we simply return the registered value.
@@ -309,14 +313,23 @@
 				resolvedInjections.push(extraInjections[t]);
 			}
 
-			reg.value.apply(instance, resolvedInjections);
+			// If the callback returns a function, we consider it to be a custom factory.
+			// This factory is then registered under the same key in the child container.
+			returnValue = reg.value.apply(instance, resolvedInjections);
+			if (returnValue instanceof Function) {
+				instance = new factoryInstance(container, key);
+				instance.container.register(key, returnValue);
+				returnValue = undefined;
+			}
 		} else {
 			// The registered value is an existing instance.
 			instance = reg.value;
 		}
 
 		container.lifecycles[reg.lifecycle].set(new cacheItem(reg, instance));
-		return instance;
+
+		// If the returnValue is set, we should return that instead of the instance.
+		return returnValue || instance;
 	};
 
 	container.prototype = {

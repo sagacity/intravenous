@@ -140,7 +140,7 @@ describe("A container", function () {
 				});
 				
 				it("should be disposed", function() {
-					expect(this.disposalCount.a).toBe(1);
+					expect(this.disposalCount.a).toBe(2);
 					expect(this.disposalCount.b).toBe(1);
 					expect(this.disposalCount.c).toBe(1);
 				});
@@ -154,6 +154,48 @@ describe("A container", function () {
 			
 			it("is never instantiated", function() {
 				expect(this.disposalCount.a).toBeUndefined();
+			});
+		});
+	});
+
+	describe("containing a custom factory registration", function() {
+		beforeEach(function() {
+			var _this = this;
+
+			this.a = function(b) {
+				_this.b = b;
+				return function() {
+					return "a";
+				};
+			};
+			this.container.register("b", "b");
+			this.a.$inject = ["b"];
+
+			this.container.register("a", this.a);
+		});
+
+		it("should return the original function", function() {
+			var a = this.container.get("a");
+			expect(a.get()).toBe("a");
+		})
+
+		it("should have injected dependencies", function() {
+			var a = this.container.get("a");
+			expect(this.b).toBe("b");
+		});
+
+		describe("that is disposed", function() {
+			beforeEach(function() {
+				var a = this.container.get("a");
+				var a1 = a.get();
+				var a2 = a.get();
+				this.container.dispose();
+			});
+
+			it("should properly dispose", function() {
+				// Disposed 2 times the instance of 'a', and 1 time the factory of 'a'
+				expect(this.disposalCount.a).toBe(3);
+				expect(this.disposalCount.b).toBe(1);
 			});
 		});
 	});

@@ -3,7 +3,14 @@ describe("A per-request registration", function() {
         var _this = this;
 
         this.constructionCount = 0;
-        this.container = intravenous.create();
+
+        this.disposalCount = {};
+        this.container = intravenous.create({
+            onDispose: function(obj, key) {
+                if (!_this.disposalCount[key]) _this.disposalCount[key] = 0;
+                _this.disposalCount[key]++;
+            }
+        });
 
         this.a = function() {
             _this.constructionCount++;
@@ -19,6 +26,16 @@ describe("A per-request registration", function() {
 
         it("should construct the object twice", function() {
             expect(this.constructionCount).toEqual(2);
+        });
+
+        describe("after disposal", function() {
+            beforeEach(function() {
+                this.container.dispose();
+            });
+
+            it("should dispose two objects", function() {
+                expect(this.disposalCount.a).toBe(2);
+            });
         });
     });
 
