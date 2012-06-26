@@ -1,7 +1,3 @@
-.npmignore
-*.nupkg
-*.tgz
-intravenous-latest.debug.js
-intravenous-latest.js
-package.json
-Package.nuspec
+*
+!lib/intravenous.js
+!package.json
