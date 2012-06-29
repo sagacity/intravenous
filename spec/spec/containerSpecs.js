@@ -158,43 +158,77 @@ describe("A container", function () {
 		});
 	});
 
-	describe("containing a custom factory registration", function() {
+	describe("containing a custom class", function() {
 		beforeEach(function() {
 			var _this = this;
 
 			this.a = function(b) {
 				_this.b = b;
-				return function() {
-					return "a";
+				function MyClass() {
+					this.name = "bob";
 				};
+				MyClass.staticProperty = "static";
+
+				// Uncommenting this line makes the test not even run.
+				MyClass.prototype.localMethod = function() { 
+					return "method";
+				};
+
+				return MyClass;
 			};
 			this.container.register("b", "b");
 			this.a.$inject = ["b"];
 
-			this.container.register("a", this.a);
+			this.container.register("MyClass", this.a);
 		});
 
-		it("should return the original function", function() {
-			var a = this.container.get("a");
-			expect(a.get()).toBe("a");
-		})
-
 		it("should have injected dependencies", function() {
-			var a = this.container.get("a");
+			var MyClass = this.container.get("MyClass");
 			expect(this.b).toBe("b");
+		});
+
+		it("should call the constructor", function() {
+			var MyClass = this.container.get("MyClass");
+			var instance = MyClass.get();
+			expect(instance.name).toBe("bob");
+		});
+
+		it("should preserve static properties", function() {
+			var MyClass = this.container.get("MyClass");
+			expect(MyClass.staticProperty).toBe("static");
+		});
+
+		it("should preserve prototype properties", function() {
+			var MyClass = this.container.get("MyClass");
+			var instance = MyClass.get();
+			expect(instance.localMethod()).toBe("method");
+		});
+
+		// Not implemented yet
+		xit("should let you use new if you want", function() {
+		    var MyClass = this.container.get("MyClass");
+		    var instance = new MyClass();
+		    expect(instance.name).toBe("bob");
+		});
+
+		// Not implemented yet
+		xit("should give you a copy of the constructor", function() {
+			var MyClass = this.container.get("MyClass");
+			var instance = MyClass.get();
+			expect(instance instanceof MyClass).toBe(true);
 		});
 
 		describe("that is disposed", function() {
 			beforeEach(function() {
-				var a = this.container.get("a");
-				var a1 = a.get();
-				var a2 = a.get();
+				var MyClass = this.container.get("MyClass");
+				var a1 = MyClass.get();
+				var a2 = MyClass.get();
 				this.container.dispose();
 			});
 
 			it("should properly dispose", function() {
 				// Disposed 2 times the instance of 'a', and 1 time the factory of 'a'
-				expect(this.disposalCount.a).toBe(3);
+				expect(this.disposalCount.MyClass).toBe(3);
 				expect(this.disposalCount.b).toBe(1);
 			});
 		});

@@ -319,6 +319,12 @@
 			if (returnValue instanceof Function) {
 				instance = new factoryInstance(container, key);
 				instance.container.register(key, returnValue);
+
+				// Copy any static properties owned by the factory
+				for (var propertyName in returnValue) {
+					if (returnValue.hasOwnProperty(propertyName)) instance[propertyName] = returnValue[propertyName];
+				}
+
 				returnValue = undefined;
 			}
 		} else {
