@@ -3,7 +3,13 @@ describe("A singleton registration", function() {
         var _this = this;
 
         this.constructionCount = 0;
-        this.container = intravenous.create();
+        this.disposalCount = {};
+        this.container = intravenous.create({
+            onDispose: function(obj, key) {
+                if (!_this.disposalCount[key]) _this.disposalCount[key] = 0;
+                _this.disposalCount[key]++;
+            }
+        });
 
         this.a = function() {
             _this.constructionCount++;
@@ -19,6 +25,16 @@ describe("A singleton registration", function() {
 
         it("should only construct the object once", function() {
             expect(this.constructionCount).toEqual(1);
+        });
+
+        describe("and disposed again", function() {
+            beforeEach(function() {
+                this.container.dispose();
+            })
+
+            it("should only dispose the object once", function() {
+                expect(this.disposalCount.a).toEqual(1);
+            });
         });
     });
 });

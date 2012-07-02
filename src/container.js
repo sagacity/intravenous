@@ -71,6 +71,7 @@
 	var singletonLifecycle = function(container, parentLifecycle) {
 		this.container = container;
 		this.cache = [];
+		this.refCounts = {};
 		this.parent = parentLifecycle;
 	};
 
@@ -93,10 +94,11 @@
 
 		set: function(cacheItem) {
 			this.cache.push(cacheItem);
+			this.refCounts[cacheItem.registration.key] = this.refCounts[cacheItem.registration.key]++ || 1;
 		},
 
 		release: function(cacheItem) {
-			return cacheItem.registration.container === this.container;
+			return !--this.refCounts[cacheItem.registration.key];
 		},
 
 		resolveStarted: function(key) {
