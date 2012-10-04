@@ -7,7 +7,7 @@ set InNpmIgnore=npm\.npmignore
 set OutNpmIgnore=output\.npmignore
 set OutDebugFile=output\intravenous-latest.debug.js
 set OutMinFile=output\intravenous-latest.js
-set OutMinNpmFile=output\lib\intravenous.js
+set OutNpmFile=output\lib\intravenous.js
 set AllFiles=
 for /f "eol=] skip=1 delims=' " %%i in (fragments\source-references.js) do set Filename=%%i& call :Concatenate 
 
@@ -59,4 +59,4 @@ nuget pack %OutNuSpec% -OutputDirectory output
 copy /y %InNpmSpec% %OutNpmSpec%
 copy /y %InNpmIgnore% %OutNpmIgnore%
 cscript tools\searchReplace.js "##VERSION##" %VERSION% %OutNpmSpec%
-copy /y %OutMinFile% %OutMinNpmFile%
+copy /y %OutDebugFile% %OutNpmFile%
