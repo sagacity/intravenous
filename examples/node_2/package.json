@@ -1,0 +1,8 @@
+{
+	"name": "nodeExample",
+	"version": "1.0.0",
+	"dependencies": {
+		"intravenous": "latest",
+		"express" : "latest"
+	}
+}
