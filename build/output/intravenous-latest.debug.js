@@ -333,6 +333,12 @@ exportSymbol('version', intravenous.version);
 		if (reg.value instanceof Function) {
 			// The registered value is a constructor, so we need to construct the object and inject all the dependencies.
 			var injections = reg.value["$inject"];
+			if (!injections) {
+				injections = reg.value.toString()
+					.replace(/((\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s))/mg, '')
+					.match(/^function\s*[^\(]*\(\s*([^\)]*)\)/m)[1]
+					.split(/,/)
+			}
 			var resolvedInjections = [];
 			if (injections instanceof Array) {
 				for (var t=0,len = injections.length;t<len;t++) {
