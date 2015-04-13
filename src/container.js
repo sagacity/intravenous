@@ -334,7 +334,7 @@
 			instance = reg.value;
 		}
 
-		container.lifecycles[reg.lifecycle].set(new cacheItem(reg, instance));
+		container.lifecycles[reg.lifecycle].set(new cacheItem(reg, returnValue || instance));
 
 		// If the returnValue is set, we should return that instead of the instance.
 		return returnValue || instance;
