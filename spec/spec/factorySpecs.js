@@ -21,6 +21,7 @@ describe("A factory", function() {
 
         this.b = function(aFactory) {
 			var _this = this;
+			this.aFactory = aFactory;
 			this.a = aFactory.get("extraParameter");
 			this.a2 = aFactory.use("dependency", "d2").get("extraParameter");
 
@@ -71,6 +72,11 @@ describe("A factory", function() {
 			it("should not have disposed the instance", function() {
 				expect(this.disposalCount.b).toBeUndefined();
 			});
+
+			it("should release the first container", function() {
+				expect(this.retrievedB.aFactory.container.children.length).toBe(1);
+				expect(this.retrievedB.aFactory.container.children[0]).toBe(this.retrievedB.a2.$containerFactoryInstance.container);
+			});
 		});
 
 		describe("and when disposed both factory instances", function() {
@@ -85,6 +91,10 @@ describe("A factory", function() {
 
 			it("should not have disposed the instance", function() {
 				expect(this.disposalCount.b).toBeUndefined();
+			});
+
+			it("should release both containers", function() {
+				expect(this.retrievedB.aFactory.container.children.length).toBe(0);
 			});
 		});
 	});
