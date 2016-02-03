@@ -53,7 +53,7 @@
 			cacheItem.tag = this.tag;
 
 			this.refCounts[cacheItem.tag] = this.refCounts[cacheItem.tag] || {};
-			this.refCounts[cacheItem.tag][cacheItem.registration.key] = this.refCounts[cacheItem.tag][cacheItem.registration.key]++ || 1;
+			this.refCounts[cacheItem.tag][cacheItem.registration.key] = this.refCounts[cacheItem.tag][cacheItem.registration.key]+1 || 1;
 		},
 
 		release: function(cacheItem) {
@@ -94,7 +94,7 @@
 
 		set: function(cacheItem) {
 			this.cache.push(cacheItem);
-			this.refCounts[cacheItem.registration.key] = this.refCounts[cacheItem.registration.key]++ || 1;
+			this.refCounts[cacheItem.registration.key] = this.refCounts[cacheItem.registration.key]+1 || 1;
 		},
 
 		release: function(cacheItem) {
@@ -121,6 +121,7 @@
 		},
 
 		release: function(cacheItem) {
+			delete this.cache[cacheItem];
 			return true;
 		},
 
@@ -390,6 +391,11 @@
 						this.options["onDispose"](item.instance, item.registration.key);
 					}
 				}
+			}
+
+			if (this.parent) {
+				var index = this.parent.children.indexOf(this);
+				this.parent.children.splice(index, 1);
 			}
 			return true;
 		},
